@@ -41,4 +41,12 @@ public class Order {
         this.quantity = quantity;
     }
 
+    @Override
+    public String toString() {
+        return "Order{" +
+            "name='" + name + '\'' +
+            ", type=" + type +
+            ", quantity=" + quantity +
+            '}';
+    }
 }

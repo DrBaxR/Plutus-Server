@@ -1,5 +1,8 @@
 package org.pcbe;
 
+import com.google.gson.Gson;
+import org.pcbe.dto.ClientMessage;
+import org.pcbe.model.Order;
 import org.pcbe.util.Communication;
 
 import java.net.*;
@@ -49,8 +52,7 @@ public class Server {
                 while(!transmissionOver) {
                     showOptions();
                     String option = in.readLine();
-                    int number = Integer.parseInt(option);
-                    handleOption(number);
+                    handleOption(option);
                 }
 
                 System.out.println("Client disconnected...");
@@ -71,12 +73,20 @@ public class Server {
             Communication.sendMessage(out, options);
         }
 
-        private void handleOption(int pickedOption) {
-            switch (pickedOption) {
+        private void handleOption(String option) {
+            ClientMessage message = new Gson().fromJson(option, ClientMessage.class);
+
+            switch (message.getOption()) {
                 case 1:
+                    Order buyOrder = new Order(message.getStockName(), Order.OrderType.BUY, message.getQuantity());
+                    System.out.println(buyOrder);
+
                     Communication.sendMessage(out, "This would place a BUY order");
                     break;
                 case 2:
+                    Order sellOrder = new Order(message.getStockName(), Order.OrderType.SELL, message.getQuantity());
+                    System.out.println(sellOrder);
+
                     Communication.sendMessage(out, "This would place a SELL order");
                     break;
                 case 3:
