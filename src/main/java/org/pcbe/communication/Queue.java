@@ -15,12 +15,7 @@ public class Queue {
     }
 
     // may have concurrency issues, need to check + also check behavior
-    public Order getOrder(Order.OrderType type) {
-        Order peek = queue.peek();
-        while(peek != null && peek.getType() != type) {
-            queue.poll();
-            peek = queue.peek();
-        }
+    public Order getOrder() {
         return queue.poll();
     }
 

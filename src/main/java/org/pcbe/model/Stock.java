@@ -5,6 +5,15 @@ public class Stock {
     private int quantity;
     private float price;
 
+    @Override
+    public String toString() {
+        return "Stock{" +
+                "name='" + name + '\'' +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                '}';
+    }
+
     public Stock(String name, int quantity, float price) {
         this.name = name;
         this.quantity = quantity;

@@ -12,4 +12,9 @@ public class StocksArray {
         stocks.add(new Stock("STK3", 120, 25));
         stocks.add(new Stock("STK4", 150, 30));
     }
+
+    @Override
+    public String toString() {
+        return stocks.toString();
+    }
 }

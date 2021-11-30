@@ -4,17 +4,26 @@ import org.pcbe.communication.Queue;
 import org.pcbe.dto.ClientMessage;
 import org.pcbe.model.Order;
 import org.pcbe.util.Communication;
+import org.pcbe.util.StocksArray;
 
 import java.net.*;
 import java.io.*;
+import java.util.Objects;
 
 public class Server {
 
     private ServerSocket serverSocket;
+    private static final int consumerThreadNumber = 1;
+
+    private static final float SELL_PRICE_MULTIPLIER_PER_UNIT = 0.0005f;
+    private static final float BUY_PRICE_MULTIPLIER_PER_UNIT = 0.001f;
 
     public void start(int port) {
         try {
             serverSocket = new ServerSocket(port);
+            for(int i = 0; i < consumerThreadNumber ; i++) {
+                new ConsumerThread().start();
+            }
             while (true)
                 new ClientHandler(serverSocket.accept()).start();
         } catch (IOException e) {
@@ -77,14 +86,12 @@ public class Server {
                 case 1:
                     Order buyOrder = new Order(message.getStockName(), Order.OrderType.BUY, message.getQuantity());
                     Queue.newInstance().addOrder(buyOrder);
-                    System.out.println(Queue.newInstance().toString());
 
                     Communication.sendMessage(out, "This would place a BUY order");
                     break;
                 case 2:
                     Order sellOrder = new Order(message.getStockName(), Order.OrderType.SELL, message.getQuantity());
                     Queue.newInstance().addOrder(sellOrder);
-                    System.out.println(Queue.newInstance().toString());
 
                     Communication.sendMessage(out, "This would place a SELL order");
                     break;
@@ -95,6 +102,38 @@ public class Server {
             }
         }
 
+    }
+
+    private static class ConsumerThread extends Thread{
+        @Override
+        public void run() {
+            while(true) {
+                var order = Queue.newInstance().getOrder();
+                if(order != null) {
+                    var orderStock = StocksArray.stocks
+                            .stream()
+                            .filter(stock -> Objects.equals(stock.getName(), order.getName()))
+                            .findFirst()
+                            .orElseThrow();
+                    if((order.getType().equals(Order.OrderType.SELL)) || (order.getType().equals(Order.OrderType.BUY) && orderStock.getQuantity() > order.getQuantity())) {
+                        orderStock.setPrice(
+                            order.getType() == Order.OrderType.BUY
+                                ? orderStock.getPrice() * (1f + order.getQuantity() * BUY_PRICE_MULTIPLIER_PER_UNIT)
+                                : orderStock.getPrice() * (1f - order.getQuantity() * SELL_PRICE_MULTIPLIER_PER_UNIT)
+                        );
+
+                        orderStock.setQuantity(
+                            orderStock.getQuantity() + (
+                                order.getType() == Order.OrderType.SELL
+                                    ? + order.getQuantity()
+                                    : - order.getQuantity()
+                            )
+                        );
+                        System.out.println(orderStock);
+                    }
+                }
+            }
+        }
     }
 
 }
