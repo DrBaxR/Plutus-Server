@@ -29,10 +29,16 @@ public class Queue {
     }
 
     public static Queue newInstance() {
-        if (singleton != null) {
+        if (singleton == null) {
             singleton = new Queue();
         }
         return singleton;
     }
 
+    @Override
+    public String toString() {
+        return "Queue{" +
+                "queue=" + queue +
+                '}';
+    }
 }

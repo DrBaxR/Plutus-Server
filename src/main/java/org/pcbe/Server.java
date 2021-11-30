@@ -1,5 +1,6 @@
 package org.pcbe;
 
+import org.pcbe.communication.Queue;
 import org.pcbe.dto.ClientMessage;
 import org.pcbe.model.Order;
 import org.pcbe.util.Communication;
@@ -75,13 +76,15 @@ public class Server {
             switch (message.getOption()) {
                 case 1:
                     Order buyOrder = new Order(message.getStockName(), Order.OrderType.BUY, message.getQuantity());
-                    System.out.println(buyOrder);
+                    Queue.newInstance().addOrder(buyOrder);
+                    System.out.println(Queue.newInstance().toString());
 
                     Communication.sendMessage(out, "This would place a BUY order");
                     break;
                 case 2:
                     Order sellOrder = new Order(message.getStockName(), Order.OrderType.SELL, message.getQuantity());
-                    System.out.println(sellOrder);
+                    Queue.newInstance().addOrder(sellOrder);
+                    System.out.println(Queue.newInstance().toString());
 
                     Communication.sendMessage(out, "This would place a SELL order");
                     break;
