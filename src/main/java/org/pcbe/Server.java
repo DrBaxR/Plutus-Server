@@ -1,6 +1,5 @@
 package org.pcbe;
 
-import com.google.gson.Gson;
 import org.pcbe.dto.ClientMessage;
 import org.pcbe.model.Order;
 import org.pcbe.util.Communication;
