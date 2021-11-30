@@ -1,8 +1,9 @@
 package org.pcbe;
 
+import org.pcbe.util.Communication;
+
 import java.net.*;
 import java.io.*;
-import java.util.Scanner;
 
 public class Server {
 
@@ -51,7 +52,6 @@ public class Server {
                     int number = Integer.parseInt(option);
                     handleOption(number);
                 }
-                out.println("bye");
 
                 System.out.println("Client disconnected...");
                 in.close();
@@ -63,18 +63,24 @@ public class Server {
         }
 
         private void showOptions() {
-            out.println("Pick 1, 2 or 3");
+            String options =
+                "Pick one of the following:\n" +
+                "\t1. Place a BUY order\n" +
+                "\t2. Place a SELL order\n" +
+                "\t3. Disconnect";
+            Communication.sendMessage(out, options);
         }
 
         private void handleOption(int pickedOption) {
             switch (pickedOption) {
                 case 1:
-                    out.println("This would place a BUY order");
+                    Communication.sendMessage(out, "This would place a BUY order");
                     break;
                 case 2:
-                    out.println("This would place a SELL order");
+                    Communication.sendMessage(out, "This would place a SELL order");
                     break;
                 case 3:
+                    Communication.sendMessage(out, "bye");
                     transmissionOver = true;
                     break;
             }
