@@ -51,8 +51,7 @@ public class Server {
 
                 while(!transmissionOver) {
                     showOptions();
-                    String option = in.readLine();
-                    handleOption(option);
+                    handleOption(Communication.readMessage(in));
                 }
 
                 System.out.println("Client disconnected...");
@@ -73,9 +72,7 @@ public class Server {
             Communication.sendMessage(out, options);
         }
 
-        private void handleOption(String option) {
-            ClientMessage message = new Gson().fromJson(option, ClientMessage.class);
-
+        private void handleOption(ClientMessage message) {
             switch (message.getOption()) {
                 case 1:
                     Order buyOrder = new Order(message.getStockName(), Order.OrderType.BUY, message.getQuantity());

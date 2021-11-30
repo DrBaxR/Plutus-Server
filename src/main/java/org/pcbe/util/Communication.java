@@ -1,6 +1,10 @@
 package org.pcbe.util;
 
+import com.google.gson.Gson;
+import org.pcbe.dto.ClientMessage;
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
@@ -14,8 +18,15 @@ public class Communication {
         out.println(END_TOKEN);
     }
 
-    public static void readMessage(BufferedReader in) {
-        // TODO
+    public static ClientMessage readMessage(BufferedReader in) {
+        ClientMessage message = null;
+        try {
+            String serializedMessage = in.readLine();
+            message = new Gson().fromJson(serializedMessage, ClientMessage.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return message;
     }
 
 }
