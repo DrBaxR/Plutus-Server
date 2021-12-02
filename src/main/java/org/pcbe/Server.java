@@ -16,7 +16,7 @@ public class Server {
     private static final int consumerThreadNumber = 1;
 
     private static final float SELL_PRICE_MULTIPLIER_PER_UNIT = 0.0005f;
-    private static final float BUY_PRICE_MULTIPLIER_PER_UNIT = 0.001f;
+    private static final float BUY_PRICE_MULTIPLIER_PER_UNIT = 0.0006f;
 
     public void start(int port) {
         try {
@@ -87,13 +87,13 @@ public class Server {
                     Order buyOrder = new Order(message.getStockName(), Order.OrderType.BUY, message.getQuantity());
                     Queue.newInstance().addOrder(buyOrder);
 
-                    Communication.sendMessage(out, "This would place a BUY order");
+                    Communication.sendMessage(out, "BUY placed");
                     break;
                 case 2:
                     Order sellOrder = new Order(message.getStockName(), Order.OrderType.SELL, message.getQuantity());
                     Queue.newInstance().addOrder(sellOrder);
 
-                    Communication.sendMessage(out, "This would place a SELL order");
+                    Communication.sendMessage(out, "SELL placed");
                     break;
                 case 3:
                     Communication.sendMessage(out, "bye");

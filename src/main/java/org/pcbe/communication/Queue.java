@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Queue {
 
+    // use map to have typed orders
     private final ConcurrentLinkedQueue<Order> queue;
 
     private static Queue singleton;
@@ -14,7 +15,6 @@ public class Queue {
         queue = new ConcurrentLinkedQueue<>();
     }
 
-    // may have concurrency issues, need to check + also check behavior
     public Order getOrder() {
         return queue.poll();
     }
