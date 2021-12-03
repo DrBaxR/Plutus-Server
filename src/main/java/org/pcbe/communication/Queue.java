@@ -1,39 +1,36 @@
 package org.pcbe.communication;
 
+
 import org.pcbe.model.Order;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.*;
 
 public class Queue {
 
-    // use map to have typed orders
-    private final ConcurrentLinkedQueue<Order> queue;
+    private static ConcurrentMap<Order.OrderType, BlockingQueue<Order>> orders;
 
-    private static Queue singleton;
-
-    private Queue() {
-        queue = new ConcurrentLinkedQueue<>();
+    static {
+        orders = new ConcurrentHashMap<>();
+        orders.put(Order.OrderType.BUY, new LinkedBlockingDeque<>());
+        orders.put(Order.OrderType.SELL, new LinkedBlockingQueue<>());
     }
 
-    public Order getOrder() {
-        return queue.poll();
-    }
-
-    public void addOrder(Order order) {
-        queue.add(order);
-    }
-
-    public static Queue newInstance() {
-        if (singleton == null) {
-            singleton = new Queue();
+    public static void placeOrder(Order.OrderType type, Order order) {
+        try {
+            orders.get(type).put(order);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        return singleton;
     }
 
-    @Override
-    public String toString() {
-        return "Queue{" +
-                "queue=" + queue +
-                '}';
+    public static Order getOrder(Order.OrderType type) {
+        try {
+            return orders.get(type).take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
+
 }
