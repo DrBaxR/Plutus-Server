@@ -7,11 +7,13 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.pcbe.communication.Queue;
 import org.pcbe.dto.ClientMessage;
 import org.pcbe.model.Order;
+import org.pcbe.model.Stock;
 import org.pcbe.util.Communication;
 import org.pcbe.util.StocksArray;
 
 import java.net.*;
 import java.io.*;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -31,6 +33,7 @@ public class Server {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         producer = new KafkaProducer<>(props);
+        initialiseStocksUI();
 //        for (int i = 0; i < 100; i++)
 //            producer.send(new ProducerRecord<String, String>("test-topic", Integer.toString(i), Integer.toString(i)));
 
@@ -90,10 +93,10 @@ public class Server {
 
         private void showOptions() {
             String options =
-                "Pick one of the following:\n" +
-                    "\t1. Place a BUY order\n" +
-                    "\t2. Place a SELL order\n" +
-                    "\t3. Disconnect";
+                    "Pick one of the following:\n" +
+                            "\t1. Place a BUY order\n" +
+                            "\t2. Place a SELL order\n" +
+                            "\t3. Disconnect";
             Communication.sendMessage(out, options);
         }
 
@@ -133,23 +136,23 @@ public class Server {
                 var order = Queue.getOrder(type);
                 if (order != null) {
                     var orderStock = StocksArray.stocks
-                        .stream()
-                        .filter(stock -> Objects.equals(stock.getName(), order.getName()))
-                        .findFirst()
-                        .orElseThrow();
+                            .stream()
+                            .filter(stock -> Objects.equals(stock.getName(), order.getName()))
+                            .findFirst()
+                            .orElseThrow();
                     if ((order.getType().equals(Order.OrderType.SELL)) || (order.getType().equals(Order.OrderType.BUY) && orderStock.getQuantity() > order.getQuantity())) {
                         orderStock.setPrice(
-                            order.getType() == Order.OrderType.BUY
-                                ? orderStock.getPrice() * (1f + order.getQuantity() * BUY_PRICE_MULTIPLIER_PER_UNIT)
-                                : orderStock.getPrice() * (1f - order.getQuantity() * SELL_PRICE_MULTIPLIER_PER_UNIT)
+                                order.getType() == Order.OrderType.BUY
+                                        ? orderStock.getPrice() * (1f + order.getQuantity() * BUY_PRICE_MULTIPLIER_PER_UNIT)
+                                        : orderStock.getPrice() * (1f - order.getQuantity() * SELL_PRICE_MULTIPLIER_PER_UNIT)
                         );
 
                         orderStock.setQuantity(
-                            orderStock.getQuantity() + (
-                                order.getType() == Order.OrderType.SELL
-                                    ? +order.getQuantity()
-                                    : -order.getQuantity()
-                            )
+                                orderStock.getQuantity() + (
+                                        order.getType() == Order.OrderType.SELL
+                                                ? +order.getQuantity()
+                                                : -order.getQuantity()
+                                )
                         );
                         System.out.println(orderStock);
 
@@ -188,6 +191,15 @@ public class Server {
                 this.price = price;
             }
         }
+    }
+    public static void initialiseStocksUI() {
+
+        Iterator<Stock> i = StocksArray.stocks.iterator();
+        producer.send(new ProducerRecord<String, String>("plutus", "STK1", new Gson().toJson(new ConsumerThread.TopicMessagePayload(100, 20))));
+        producer.send(new ProducerRecord<String, String>("plutus", "STK2", new Gson().toJson(new ConsumerThread.TopicMessagePayload(140, 40))));
+        producer.send(new ProducerRecord<String, String>("plutus", "STK3", new Gson().toJson(new ConsumerThread.TopicMessagePayload(120, 25))));
+        producer.send(new ProducerRecord<String, String>("plutus", "STK4", new Gson().toJson(new ConsumerThread.TopicMessagePayload(150, 30))));
+
     }
 
 }
