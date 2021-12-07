@@ -7,11 +7,13 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.pcbe.communication.Queue;
 import org.pcbe.dto.ClientMessage;
 import org.pcbe.model.Order;
+import org.pcbe.model.Stock;
 import org.pcbe.util.Communication;
 import org.pcbe.util.StocksArray;
 
 import java.net.*;
 import java.io.*;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -31,6 +33,7 @@ public class Server {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         producer = new KafkaProducer<>(props);
+        initialiseStocksUI();
 //        for (int i = 0; i < 100; i++)
 //            producer.send(new ProducerRecord<String, String>("test-topic", Integer.toString(i), Integer.toString(i)));
 
@@ -188,6 +191,18 @@ public class Server {
                 this.price = price;
             }
         }
+    }
+    public static void initialiseStocksUI() {
+
+        Iterator<Stock> i = StocksArray.stocks.iterator();
+
+        while(i.hasNext()) {
+
+            ConsumerThread.TopicMessagePayload messagePayload = new ConsumerThread.TopicMessagePayload(i.next().getQuantity(), i.next().getPrice());
+            producer.send(new ProducerRecord<String, String>("plutus", i.next().getName(), new Gson().toJson(messagePayload)));
+
+        }
+
     }
 
 }
